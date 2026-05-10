@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全国青旅白名单 - 发现优质青年旅舍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tag {
+            transition: all 0.2s ease;
+        }
+        
+        .tag:hover {
+            transform: scale(1.05);
+        }
+        
+        .map-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .map-stage {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        #china-map {
+            width: 100%;
+            height: 560px;
+            border-radius: 12px;
+            background: #f4efe3;
+        }
+
+        .map-zoom-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #b49c7f;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #6f5437;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover {
+            background: #f6eee0;
+            border-color: #8f7257;
+        }
+
+        .zoom-btn.reset {
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <h1 class="text-xl font-bold text-amber-800">全国青旅白名单</h1>
+            </div>
+            <nav class="flex gap-4">
+                <a href="index.html" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors">首页地图</a>
+                <a href="submit.html" class="px-4 py-2 rounded-lg text-amber-700 hover:text-amber-900 hover:bg-amber-50 font-medium transition-colors">投稿青旅</a>
+                <a href="admin.html" class="px-4 py-2 rounded-lg text-amber-700 hover:text-amber-900 hover:bg-amber-50 font-medium transition-colors">管理审核</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- 欢迎区域 -->
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-amber-800 mb-4">发现中国最美的青年旅舍</h2>
+            <p class="text-amber-600 max-w-2xl mx-auto">点击地图上的省份，探索当地优质青旅，发现旅途的美好</p>
+        </div>
+
+        <!-- 全国地图区域 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="map-container">
+                <div class="map-stage">
+                    <div id="china-map" aria-label="中国省级行政区划地图"></div>
+                    <div class="map-zoom-controls" aria-label="地图缩放控件">
+                        <button id="zoom-in-btn" class="zoom-btn" type="button" aria-label="放大地图">+</button>
+                        <button id="zoom-out-btn" class="zoom-btn" type="button" aria-label="缩小地图">-</button>
+                        <button id="zoom-reset-btn" class="zoom-btn reset" type="button" aria-label="重置地图缩放">重置</button>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-amber-600 text-sm mt-4">点击任意省份查看当地青旅</p>
+        </div>
+
+        <!-- 青旅列表区域 -->
+        <div id="hostel-list" class="hidden">
+            <h3 class="text-xl font-semibold text-amber-800 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                </svg>
+                <span id="province-title">---</span> 优质青旅
+            </h3>
+            <div id="hostel-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 青旅卡片将动态生成 -->
+            </div>
+            <div id="no-hostel" class="text-center py-12 text-amber-600 hidden">
+                <svg class="w-16 h-16 mx-auto mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <p>该省份暂无收录的青旅</p>
+                <p class="text-sm mt-2">快来投稿你发现的优质青旅吧！</p>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-16 text-center text-amber-600/70 text-sm">
+            <p>全国青旅白名单 - 分享旅途美好</p>
+        </footer>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3001/api';
+        const CHINA_GEOJSON_URL = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+        let mapChart = null;
+        const DEFAULT_MAP_ZOOM = 1.05;
+        const MIN_MAP_ZOOM = 0.9;
+        const MAX_MAP_ZOOM = 2.2;
+        let currentMapZoom = DEFAULT_MAP_ZOOM;
+        let approvedHostelsCache = [];
+
+        async function loadApprovedHostels() {
+            const resp = await fetch(`${API_BASE_URL}/hostels?status=approved`);
+            if (!resp.ok) {
+                throw new Error('青旅数据加载失败');
+            }
+            approvedHostelsCache = await resp.json();
+        }
+
+        // 渲染青旅卡片
+        function renderHostelCard(hostel, index) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-md overflow-hidden card-hover';
+            
+            card.innerHTML = `
+                <div class="h-40 bg-gradient-to-br from-amber-100 to-orange-100 relative overflow-hidden">
+                    <img src="${hostel.images[0] || 'https://neeko-copilot.bytedance.net/api/text2image?prompt=cozy%20youth%20hostel%20interior%20warm%20atmosphere&image_size=landscape_16_9'}" 
+                         alt="${hostel.name}" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute top-2 right-2 bg-white/90 text-amber-600 text-xs px-2 py-1 rounded-full">
+                        <svg class="w-3 h-3 inline mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        标记 ${index + 1}
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h4 class="font-bold text-amber-800 text-lg mb-2">${hostel.name}</h4>
+                    <p class="text-gray-500 text-sm mb-2 flex items-center gap-1">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        ${hostel.address}
+                    </p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">${hostel.description || '暂无简介'}</p>
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        ${hostel.tags && hostel.tags.length > 0 ? hostel.tags.map(tag => `<span class="tag bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-full">${tag}</span>`).join('') : '<span class="tag bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">暂无标签</span>'}
+                    </div>
+                    <div class="border-t border-gray-100 pt-3">
+                        <p class="text-gray-500 text-xs">入住体验：</p>
+                        <p class="text-gray-600 text-sm line-clamp-2">${hostel.experience || '暂无体验分享'}</p>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 显示省份青旅列表
+        function showHostels(province) {
+            const approvedHostels = approvedHostelsCache.filter(
+                (hostel) => hostel.province === province && hostel.status === 'approved'
+            );
+            
+            // 更新省份标题
+            document.getElementById('province-title').textContent = province;
+            
+            // 显示青旅列表区域
+            document.getElementById('hostel-list').style.display = 'block';
+            
+            const grid = document.getElementById('hostel-grid');
+            const noHostel = document.getElementById('no-hostel');
+            
+            if (approvedHostels.length === 0) {
+                grid.innerHTML = '';
+                noHostel.style.display = 'block';
+            } else {
+                noHostel.style.display = 'none';
+                grid.innerHTML = '';
+                approvedHostels.forEach((hostel, index) => {
+                    grid.appendChild(renderHostelCard(hostel, index));
+                });
+            }
+            
+            // 滚动到青旅列表区域
+            document.getElementById('hostel-list').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const PROVINCE_NAME_SET = new Set([
+            '北京市', '天津市', '上海市', '重庆市',
+            '河北省', '山西省', '辽宁省', '吉林省', '黑龙江省',
+            '江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省',
+            '河南省', '湖北省', '湖南省', '广东省', '海南省',
+            '四川省', '贵州省', '云南省', '陕西省', '甘肃省', '青海省',
+            '台湾省',
+            '内蒙古自治区', '广西壮族自治区', '西藏自治区',
+            '宁夏回族自治区', '新疆维吾尔自治区',
+            '香港特别行政区', '澳门特别行政区'
+        ]);
+
+        function normalizeProvinceName(name) {
+            const aliasMap = {
+                '北京': '北京市',
+                '天津': '天津市',
+                '上海': '上海市',
+                '重庆': '重庆市',
+                '内蒙古': '内蒙古自治区',
+                '广西': '广西壮族自治区',
+                '西藏': '西藏自治区',
+                '宁夏': '宁夏回族自治区',
+                '新疆': '新疆维吾尔自治区',
+                '香港': '香港特别行政区',
+                '澳门': '澳门特别行政区',
+                '台湾': '台湾省'
+            };
+            return aliasMap[name] || name;
+        }
+
+        function getDisplayProvinceName(name) {
+            const normalized = normalizeProvinceName(name);
+            const displayMap = {
+                '北京市': '北京',
+                '天津市': '天津',
+                '上海市': '上海',
+                '重庆市': '重庆',
+                '内蒙古自治区': '内蒙古',
+                '广西壮族自治区': '广西',
+                '西藏自治区': '西藏',
+                '宁夏回族自治区': '宁夏',
+                '新疆维吾尔自治区': '新疆',
+                '香港特别行政区': '香港',
+                '澳门特别行政区': '澳门',
+                '台湾省': '台湾'
+            };
+            return displayMap[normalized] || normalized.replace(/省$/, '');
+        }
+
+        function ringArea(ring) {
+            if (!Array.isArray(ring) || ring.length < 3) return 0;
+            let area = 0;
+            for (let i = 0; i < ring.length; i += 1) {
+                const [x1, y1] = ring[i];
+                const [x2, y2] = ring[(i + 1) % ring.length];
+                area += x1 * y2 - x2 * y1;
+            }
+            return Math.abs(area / 2);
+        }
+
+        // 仅保留每个省份的主轮廓，去掉零散小岛
+        function keepMainLandmass(feature) {
+            const geometry = feature?.geometry;
+            if (!geometry) return feature;
+
+            if (geometry.type === 'MultiPolygon' && Array.isArray(geometry.coordinates)) {
+                let largestPolygon = null;
+                let maxArea = 0;
+                geometry.coordinates.forEach((polygon) => {
+                    const area = ringArea(polygon?.[0]);
+                    if (area > maxArea) {
+                        maxArea = area;
+                        largestPolygon = polygon;
+                    }
+                });
+
+                if (largestPolygon) {
+                    return {
+                        ...feature,
+                        geometry: {
+                            type: 'Polygon',
+                            coordinates: largestPolygon
+                        }
+                    };
+                }
+            }
+
+            return feature;
+        }
+
+        function buildMapOption(zoomValue) {
+            return {
+                backgroundColor: '#f4efe3',
+                tooltip: { show: false },
+                series: [{
+                    type: 'map',
+                    map: 'china-standard',
+                    selectedMode: 'single',
+                    roam: true,
+                    layoutCenter: ['50%', '50%'],
+                    layoutSize: '96%',
+                    zoom: zoomValue,
+                    scaleLimit: { min: MIN_MAP_ZOOM, max: MAX_MAP_ZOOM },
+                    label: {
+                        show: true,
+                        color: '#4a392c',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        formatter: (params) => getDisplayProvinceName(params.name)
+                    },
+                    itemStyle: {
+                        areaColor: '#d8cab2',
+                        borderColor: '#a58f76',
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        itemStyle: { areaColor: '#cdb287' }
+                    },
+                    select: {
+                        itemStyle: { areaColor: '#be9b68' }
+                    }
+                }]
+            };
+        }
+
+        function clampZoom(value) {
+            return Math.max(MIN_MAP_ZOOM, Math.min(MAX_MAP_ZOOM, value));
+        }
+
+        function setMapZoom(nextZoom) {
+            if (!mapChart) return;
+            currentMapZoom = clampZoom(nextZoom);
+            mapChart.setOption({ series: [{ zoom: currentMapZoom }] });
+        }
+
+        function resetMapView() {
+            if (!mapChart) return;
+            currentMapZoom = DEFAULT_MAP_ZOOM;
+            mapChart.setOption(buildMapOption(currentMapZoom), { notMerge: true });
+        }
+
+        function bindZoomControls() {
+            const zoomInBtn = document.getElementById('zoom-in-btn');
+            const zoomOutBtn = document.getElementById('zoom-out-btn');
+            const zoomResetBtn = document.getElementById('zoom-reset-btn');
+            if (!zoomInBtn || !zoomOutBtn || !zoomResetBtn) return;
+            zoomInBtn.addEventListener('click', () => setMapZoom(currentMapZoom + 0.12));
+            zoomOutBtn.addEventListener('click', () => setMapZoom(currentMapZoom - 0.12));
+            zoomResetBtn.addEventListener('click', resetMapView);
+        }
+
+        async function initChinaMap() {
+            const mapEl = document.getElementById('china-map');
+            if (!window.echarts) {
+                throw new Error('地图组件加载失败');
+            }
+
+            mapChart = echarts.init(mapEl);
+            const resp = await fetch(`${CHINA_GEOJSON_URL}?t=${Date.now()}`);
+            if (!resp.ok) {
+                throw new Error('地图数据加载失败');
+            }
+
+            const geojson = await resp.json();
+            const filteredGeoJson = {
+                ...geojson,
+                features: (geojson.features || []).filter((feature) => {
+                    const featureName = feature?.properties?.name || '';
+                    if (featureName.includes('南海')) return false;
+                    return PROVINCE_NAME_SET.has(normalizeProvinceName(featureName));
+                }).map(keepMainLandmass)
+            };
+            echarts.registerMap('china-standard', filteredGeoJson);
+
+            mapChart.setOption(buildMapOption(currentMapZoom));
+
+            mapChart.on('click', (params) => {
+                const provinceName = normalizeProvinceName(params.name);
+                showHostels(provinceName);
+            });
+
+            window.addEventListener('resize', () => {
+                if (mapChart) mapChart.resize();
+            });
+        }
+
+        // 事件监听
+        document.addEventListener('DOMContentLoaded', async () => {
+            bindZoomControls();
+            try {
+                await initChinaMap();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('china-map').innerHTML =
+                    '<div class="h-full flex items-center justify-center text-amber-700">地图加载失败，请检查网络后刷新页面</div>';
+                return;
+            }
+
+            try {
+                await loadApprovedHostels();
+            } catch (err) {
+                console.warn('青旅数据加载失败，地图已正常显示:', err);
+                approvedHostelsCache = [];
+            }
+        });
+    </script>
+</body>
+</html>

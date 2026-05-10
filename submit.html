@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿青旅 - 全国青旅白名单</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Noto Serif SC', serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+        }
+        
+        .image-preview {
+            transition: all 0.3s ease;
+        }
+        
+        .image-preview:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5"></path>
+                    <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                <h1 class="text-xl font-bold text-amber-800">全国青旅白名单</h1>
+            </div>
+            <nav class="flex gap-4">
+                <a href="index.html" class="px-4 py-2 rounded-lg text-amber-700 hover:text-amber-900 hover:bg-amber-50 font-medium transition-colors">首页地图</a>
+                <a href="submit.html" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition-colors">投稿青旅</a>
+                <a href="admin.html" class="px-4 py-2 rounded-lg text-amber-700 hover:text-amber-900 hover:bg-amber-50 font-medium transition-colors">管理审核</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-amber-800 mb-2">分享你发现的优质青旅</h2>
+            <p class="text-amber-600">提交后需经过管理员审核，审核通过后将在地图上展示</p>
+        </div>
+
+        <!-- 投稿表单 -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <form id="submit-form" class="space-y-6">
+                <!-- 青旅名称 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">青旅名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="name" required
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400"
+                        placeholder="请输入青旅名称">
+                </div>
+
+                <!-- 所在省份 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">所在省份 <span class="text-red-500">*</span></label>
+                    <select id="province" required
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 bg-white">
+                        <option value="">请选择省份</option>
+                        <option value="北京市">北京市</option>
+                        <option value="天津市">天津市</option>
+                        <option value="河北省">河北省</option>
+                        <option value="山西省">山西省</option>
+                        <option value="内蒙古">内蒙古自治区</option>
+                        <option value="辽宁省">辽宁省</option>
+                        <option value="吉林省">吉林省</option>
+                        <option value="黑龙江省">黑龙江省</option>
+                        <option value="上海市">上海市</option>
+                        <option value="江苏省">江苏省</option>
+                        <option value="浙江省">浙江省</option>
+                        <option value="安徽省">安徽省</option>
+                        <option value="福建省">福建省</option>
+                        <option value="江西省">江西省</option>
+                        <option value="山东省">山东省</option>
+                        <option value="河南省">河南省</option>
+                        <option value="湖北省">湖北省</option>
+                        <option value="湖南省">湖南省</option>
+                        <option value="广东省">广东省</option>
+                        <option value="广西">广西壮族自治区</option>
+                        <option value="海南省">海南省</option>
+                        <option value="重庆市">重庆市</option>
+                        <option value="四川省">四川省</option>
+                        <option value="贵州省">贵州省</option>
+                        <option value="云南省">云南省</option>
+                        <option value="西藏">西藏自治区</option>
+                        <option value="陕西省">陕西省</option>
+                        <option value="甘肃省">甘肃省</option>
+                        <option value="青海省">青海省</option>
+                        <option value="宁夏">宁夏回族自治区</option>
+                        <option value="新疆">新疆维吾尔自治区</option>
+                        <option value="香港">香港特别行政区</option>
+                        <option value="澳门">澳门特别行政区</option>
+                    </select>
+                </div>
+
+                <!-- 详细地址 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">详细地址</label>
+                    <input type="text" id="address"
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400"
+                        placeholder="请输入详细地址（选填）">
+                </div>
+
+                <!-- 简介 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">青旅简介</label>
+                    <textarea id="description" rows="3"
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none"
+                        placeholder="介绍一下这家青旅的特色、设施、周边环境等（选填）"></textarea>
+                </div>
+
+                <!-- 入住体验 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">入住体验</label>
+                    <textarea id="experience" rows="3"
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none"
+                        placeholder="分享你的入住感受、服务体验等（选填）"></textarea>
+                </div>
+
+                <!-- 青旅发生的故事 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">青旅发生的故事</label>
+                    <textarea id="story" rows="3"
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400 resize-none"
+                        placeholder="可以写下你在这家青旅遇到的难忘故事（选填）"></textarea>
+                </div>
+
+                <!-- 特色标签 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">特色标签</label>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="交通便利">交通便利</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="靠近景区">靠近景区</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="文艺清新">文艺清新</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="热情老板">热情老板</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="干净整洁">干净整洁</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="公共区域大">公共区域大</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="免费早餐">免费早餐</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="WiFi稳定">WiFi稳定</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="24小时前台">24小时前台</span>
+                        <span class="tag-option bg-amber-100 text-amber-700 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-amber-200" data-tag="观景露台">观景露台</span>
+                    </div>
+                    <input type="text" id="custom-tags"
+                        class="form-input w-full px-4 py-3 border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-400"
+                        placeholder="或输入自定义标签，用逗号分隔（选填）">
+                    <input type="hidden" id="tags" value="">
+                </div>
+
+                <!-- 上传图片 -->
+                <div>
+                    <label class="block text-amber-800 font-medium mb-2">上传图片</label>
+                    <div class="border-2 border-dashed border-amber-200 rounded-lg p-6 text-center hover:border-amber-400 transition-colors">
+                        <input type="file" id="image-upload" accept="image/*" class="hidden" onchange="previewImage(event)">
+                        <label for="image-upload" class="cursor-pointer">
+                            <svg class="w-12 h-12 mx-auto text-amber-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p class="text-amber-600">点击上传青旅图片（选填）</p>
+                            <p class="text-amber-400 text-sm">支持 JPG、PNG 格式</p>
+                        </label>
+                    </div>
+                    <div id="image-preview-container" class="mt-4 flex gap-3 flex-wrap hidden">
+                        <div class="image-preview relative w-24 h-24 rounded-lg overflow-hidden">
+                            <img id="preview-image" src="" alt="预览" class="w-full h-full object-cover">
+                            <button type="button" class="remove-image absolute top-1 right-1 bg-black/50 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs" onclick="removeImage()">×</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="images" value="">
+                </div>
+
+                <!-- 提交按钮 -->
+                <button type="submit" class="w-full bg-amber-600 text-white py-3 rounded-lg font-medium hover:bg-amber-700 transition-colors">
+                    提交投稿
+                </button>
+            </form>
+        </div>
+
+        <!-- 成功提示 -->
+        <div id="success-message" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+                <svg class="w-16 h-16 mx-auto text-green-500 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="16 10 10 16 8 14"></polyline>
+                </svg>
+                <h3 class="text-xl font-bold text-amber-800 mb-2">投稿成功！</h3>
+                <p class="text-amber-600 mb-6">你的投稿已提交，等待管理员审核</p>
+                <button onclick="closeSuccessMessage()" class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700">
+                    确定
+                </button>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <footer class="mt-16 text-center text-amber-600/70 text-sm">
+            <p>全国青旅白名单 - 分享旅途美好</p>
+        </footer>
+    </main>
+
+    <script>
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:3001/api';
+        let selectedTags = [];
+        
+        // 标签选择
+        document.querySelectorAll('.tag-option').forEach(tag => {
+            tag.addEventListener('click', () => {
+                const tagText = tag.getAttribute('data-tag');
+                if (selectedTags.includes(tagText)) {
+                    selectedTags = selectedTags.filter(t => t !== tagText);
+                    tag.classList.remove('bg-amber-500', 'text-white');
+                    tag.classList.add('bg-amber-100', 'text-amber-700');
+                } else {
+                    if (selectedTags.length < 5) {
+                        selectedTags.push(tagText);
+                        tag.classList.remove('bg-amber-100', 'text-amber-700');
+                        tag.classList.add('bg-amber-500', 'text-white');
+                    } else {
+                        alert('最多选择5个标签');
+                    }
+                }
+                document.getElementById('tags').value = JSON.stringify(selectedTags);
+            });
+        });
+
+        // 图片预览
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-image').src = e.target.result;
+                    document.getElementById('image-preview-container').style.display = 'flex';
+                    document.getElementById('images').value = JSON.stringify([e.target.result]);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 移除图片
+        function removeImage() {
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('image-upload').value = '';
+            document.getElementById('images').value = '';
+        }
+
+        // 关闭成功提示
+        function closeSuccessMessage() {
+            document.getElementById('success-message').style.display = 'none';
+            window.location.href = 'index.html';
+        }
+
+        // 表单提交
+        document.getElementById('submit-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 合并选择的标签和自定义标签
+            let tags = selectedTags;
+            const customTags = document.getElementById('custom-tags').value;
+            if (customTags) {
+                const customTagArray = customTags.split(',').map(t => t.trim()).filter(t => t);
+                tags = [...new Set([...tags, ...customTagArray])].slice(0, 5);
+            }
+            
+            // 生成图片URL（如果没有上传图片，使用默认图片）
+            let images = [];
+            const imagesValue = document.getElementById('images').value;
+            if (imagesValue) {
+                images = JSON.parse(imagesValue);
+            } else {
+                images = ['https://neeko-copilot.bytedance.net/api/text2image?prompt=cozy%20youth%20hostel%20interior%20warm%20atmosphere&image_size=landscape_16_9'];
+            }
+            
+            // 创建青旅对象
+            const newHostel = {
+                name: document.getElementById('name').value,
+                province: document.getElementById('province').value || '',
+                address: document.getElementById('address').value || '',
+                description: document.getElementById('description').value || '',
+                experience: document.getElementById('experience').value || '',
+                story: document.getElementById('story').value || '',
+                tags: tags,
+                images: images
+            };
+
+            try {
+                const resp = await fetch(`${API_BASE_URL}/hostels`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newHostel)
+                });
+                if (!resp.ok) {
+                    throw new Error('投稿失败');
+                }
+                document.getElementById('success-message').style.display = 'flex';
+            } catch (err) {
+                console.error(err);
+                alert('投稿失败，请稍后重试');
+            }
+        });
+    </script>
+</body>
+</html>
